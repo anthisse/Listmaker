@@ -6,7 +6,16 @@ import com.ant.listmaker.TaskList
 
 class MainViewModel(private val sharedPreferences: SharedPreferences) : ViewModel() {
 
+    // Inform the fragment that a new task is available if something is added
     lateinit var onListAdded: (() -> Unit)
+    lateinit var onTaskAdded: (() -> Unit)
+    lateinit var list: TaskList
+
+    // Add tasks to the list and invoke the lambda
+    fun addTask(task: String) {
+        list.tasks.add(task)
+        onTaskAdded.invoke()
+    }
 
     val lists: MutableList<TaskList> by lazy {
         retrieveLists()
@@ -28,5 +37,18 @@ class MainViewModel(private val sharedPreferences: SharedPreferences) : ViewMode
         sharedPreferences.edit().putStringSet(list.name, list.tasks.toHashSet()).apply()
         lists.add(list)
         onListAdded.invoke()
+    }
+
+    // Write a list to SharedPreferences
+    fun updateList(list: TaskList) {
+        sharedPreferences.edit().putStringSet(list.name,
+        list.tasks.toHashSet()).apply()
+        lists.add(list)
+    }
+
+    // Clear li
+    fun refreshLists() {
+        lists.clear()
+        lists.addAll(retrieveLists())
     }
 }

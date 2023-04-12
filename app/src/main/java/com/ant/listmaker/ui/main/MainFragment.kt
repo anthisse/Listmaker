@@ -13,9 +13,10 @@ import com.ant.listmaker.databinding.FragmentMainBinding
 import kotlin.properties.Delegates
 import org.intellij.lang.annotations.JdkConstants.ListSelectionMode
 
-class MainFragment(val clickListener: MainFragmentInteractionListener) : Fragment(),
+class MainFragment() : Fragment(),
     ListSelectionRecyclerViewAdapter.ListSelectionRecyclerViewClickListener {
 
+    lateinit var clickListener: MainFragmentInteractionListener
     interface MainFragmentInteractionListener {
         fun listItemTapped(list: TaskList)
     }
@@ -23,7 +24,7 @@ class MainFragment(val clickListener: MainFragmentInteractionListener) : Fragmen
     private lateinit var binding: FragmentMainBinding
 
     companion object {
-        fun newInstance(clickListener: MainFragmentInteractionListener) = MainFragment(clickListener)
+        fun newInstance() = MainFragment()
     }
 
     private lateinit var viewModel : MainViewModel
