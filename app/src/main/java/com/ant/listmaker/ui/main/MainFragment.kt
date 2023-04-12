@@ -6,19 +6,24 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.ant.listmaker.R
+import com.ant.listmaker.TaskList
 import com.ant.listmaker.databinding.FragmentMainBinding
+import kotlin.properties.Delegates
 import org.intellij.lang.annotations.JdkConstants.ListSelectionMode
 
-class MainFragment : Fragment() {
+class MainFragment(val clickListener: MainFragmentInteractionListener) : Fragment(),
+    ListSelectionRecyclerViewAdapter.ListSelectionRecyclerViewClickListener {
+
+    interface MainFragmentInteractionListener {
+        fun listItemTapped(list: TaskList)
+    }
 
     private lateinit var binding: FragmentMainBinding
 
     companion object {
-        fun newInstance() = MainFragment()
+        fun newInstance(clickListener: MainFragmentInteractionListener) = MainFragment(clickListener)
     }
 
     private lateinit var viewModel : MainViewModel
@@ -39,12 +44,16 @@ class MainFragment : Fragment() {
             MainViewModelFactory(PreferenceManager.getDefaultSharedPreferences(requireActivity())))
             .get(MainViewModel::class.java)
 
-        val recyclerViewAdapter = ListSelectionRecyclerViewAdapter(viewModel.lists)
+        val recyclerViewAdapter = ListSelectionRecyclerViewAdapter(viewModel.lists, this) // No value passed for parameter 'clickListener'
 
         binding.listsRecyclerview.adapter = recyclerViewAdapter
 
         viewModel.onListAdded = {
             recyclerViewAdapter.listsUpdated()
         }
+    }
+
+    override fun listItemClicked(list: TaskList) {
+        clickListener.listItemTapped(list) // Unresolved reference error
     }
 }

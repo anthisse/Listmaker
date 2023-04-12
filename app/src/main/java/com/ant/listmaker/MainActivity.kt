@@ -1,5 +1,6 @@
 package com.ant.listmaker
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
@@ -9,12 +10,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.ant.listmaker.databinding.ActivityMainBinding
 import com.ant.listmaker.databinding.FragmentMainBinding
-//import com.ant.listmaker.models.TaskList // TODO this is broken
+import com.ant.listmaker.ui.detail.ListDetailActivity
 import com.ant.listmaker.ui.main.MainFragment
 import com.ant.listmaker.ui.main.MainViewModel
 import com.ant.listmaker.ui.main.MainViewModelFactory
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionListener {
 
     // Store binding
     private lateinit var binding : ActivityMainBinding
@@ -31,8 +32,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
         if (savedInstanceState == null) {
+            val mainFragment = MainFragment.newInstance(this)
             supportFragmentManager.beginTransaction()
-                .replace(R.id.container, MainFragment.newInstance())
+                .replace(R.id.container, mainFragment)
                 .commitNow()
         }
 
@@ -45,7 +47,6 @@ class MainActivity : AppCompatActivity() {
 
     // Show some dialog
     private fun showCreateListDialog() {
-
         // Get some strings
         val dialogTitle = getString(R.string.name_of_list)
         val positiveButtonTitle = getString(R.string.create_list)
@@ -60,10 +61,33 @@ class MainActivity : AppCompatActivity() {
         builder.setView(listTitleEditText)
 
         // Add a positive button
-        builder.setPositiveButton(positiveButtonTitle) { dialog, _ ->dialog.dismiss()
-        viewModel.saveList(TaskList(listTitleEditText.text.toString()))}
+        builder.setPositiveButton(positiveButtonTitle) { dialog, _ -> dialog.dismiss()
+
+        val taskList = TaskList(listTitleEditText.text.toString())
+            viewModel.saveList(taskList)
+            showListDetail(taskList)
+        }
 
         // Show the dialog
         builder.create().show()
+    }
+
+    private fun showListDetail(list : TaskList) {
+        // Create an intent and pass in the current activity and its class
+        val listDetailIntent = Intent(this, ListDetailActivity::class.java)
+
+        // Add an Extra and send it a list and a key
+        listDetailIntent.putExtra(INTENT_LIST_KEY, list)
+
+        // Start a new activity
+        startActivity(listDetailIntent)
+    }
+
+    companion object {
+        const val INTENT_LIST_KEY = "list"
+    }
+
+    override fun listItemTapped(list: TaskList) {
+        showListDetail(list)
     }
 }

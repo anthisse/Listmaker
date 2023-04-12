@@ -2,6 +2,7 @@ package com.ant.listmaker.ui.detail
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.ant.listmaker.R
 import com.ant.listmaker.ui.detail.ui.detail.ListDetailFragment
 
 class ListDetailActivity : AppCompatActivity() {
