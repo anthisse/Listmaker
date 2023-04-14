@@ -27,29 +27,41 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Set the viewModel to MainViewModel
         viewModel = ViewModelProvider(
             this,
             MainViewModelFactory(PreferenceManager.getDefaultSharedPreferences(this))
-        )
-            .get((MainViewModel::class.java))
+        ).get((MainViewModel::class.java))
+
+        // Set binding and view
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
+
+        // Display content on screen
         setContentView(view)
 
+        // If there's nothing in the savedInstanceState
         if (savedInstanceState == null) {
+
+            // Make a new instance of a MainFragment
             val mainFragment = MainFragment.newInstance()
             mainFragment.clickListener = this
 
+            // Unfortunately, there's no ternary operator in Kotlin
+            // Set fragmentContainerViewId to detail_container if there's no fragment
             val fragmentContainerViewId: Int = if (binding.mainFragmentContainer == null) {
                 R.id.detail_container
             } else {
+                // Otherwise set it to main_fragment_container
                 R.id.main_fragment_container
             }
 
+            // Add fragmentContainerViewId and the mainFragment to FragmentManager
             supportFragmentManager.commit {
                 setReorderingAllowed(true)
                 add(fragmentContainerViewId, mainFragment)
             }
+        }
 
             // Listen for a click
             binding.fabButton.setOnClickListener {
@@ -57,7 +69,6 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
                 showCreateListDialog()
             }
         }
-    }
 
     // Show some dialog
     private fun showCreateListDialog() {
@@ -78,7 +89,7 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
         builder.setPositiveButton(positiveButtonTitle) { dialog, _ -> dialog.dismiss()
 
         val taskList: TaskList = TaskList(listTitleEditText.text.toString())
-            this.viewModel.saveList(taskList)
+            viewModel.saveList(taskList)
             showListDetail(taskList)
         }
 
@@ -86,6 +97,7 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
         builder.create().show()
     }
 
+    // Show the items in a list
     private fun showListDetail(list : TaskList) {
         // If the FragmentContainerView is null, use the smaller layout
         if (binding.mainFragmentContainer == null) {
@@ -105,8 +117,9 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
             val bundle = bundleOf(INTENT_LIST_KEY to list)
             supportFragmentManager.commit {
 
+                // Once the FAB is pressed, show the dialog to create a task
                 binding.fabButton.setOnClickListener {
-                    showCreateListDialog() // This is suspicious. Should be showCreateTaskDialog()?
+                    showCreateTaskDialog()
                 }
                 setReorderingAllowed(true)
 
@@ -117,16 +130,18 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
         }
     }
 
-    private fun ShowCreateTaskDialog() {
+    // Show dialog to create a task
+    private fun showCreateTaskDialog() {
 
         // Create an EditText to get user input
         val taskEditText = EditText(this)
         taskEditText.inputType = InputType.TYPE_CLASS_TEXT
 
-        // Create and show the dialog
+        // Create and show the dialog with an alert
         AlertDialog.Builder(this)
             .setTitle(R.string.task_to_add)
             .setView(taskEditText)
+                // Get the text from the dialog box and add it as a task to the current list
             .setPositiveButton(R.string.add_task) { dialog, _ ->
                 val task = taskEditText.text.toString()
                 viewModel.addTask(task)
@@ -136,16 +151,22 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
             .show()
     }
 
+    // Override the listItemTapped function to show the tasks in a list
     override fun listItemTapped(list: TaskList) {
         showListDetail(list)
     }
 
+    // Override onActivityResult to save the list to the viewModel
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+        // Ensure the request is correct by checking its code
         if (requestCode == LIST_DETAIL_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            data?.let { viewModel.updateList(data.getParcelableExtra(INTENT_LIST_KEY)!!)
-            viewModel.refreshLists()}
+            // Unbundle data that Intent got
+            data?.let {
+                viewModel.updateList(data.getParcelableExtra(INTENT_LIST_KEY)!!)
+                viewModel.refreshLists()
+            }
         }
     }
 
@@ -155,7 +176,7 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
         val listDetailFragment = supportFragmentManager.findFragmentById(
             R.id.list_detail_fragment_container
         )
-        // If we didn't get a Fragment, close the Activity
+        // If a Fragment wasn't found, close the Activity
         if (listDetailFragment == null) {
             super.onBackPressed()
         } else {

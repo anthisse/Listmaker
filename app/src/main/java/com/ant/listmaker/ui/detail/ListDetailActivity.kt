@@ -51,6 +51,7 @@ class ListDetailActivity : AppCompatActivity() {
         }
     }
 
+    // Show the create task dialog
     private fun showCreateTaskDialog() {
         // Create an EditText object to get input from user
         val taskEditText = EditText(this)

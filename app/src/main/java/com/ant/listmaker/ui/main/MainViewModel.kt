@@ -17,25 +17,33 @@ class MainViewModel(private val sharedPreferences: SharedPreferences) : ViewMode
         onTaskAdded.invoke()
     }
 
+    // Until lists is called, it's empty
     val lists: MutableList<TaskList> by lazy {
         retrieveLists()
     }
 
+    // Get saved TaskLists from SharedPreferences
     private fun retrieveLists() : MutableList<TaskList> {
         val sharedPreferencesContents = sharedPreferences.all
         val taskLists = ArrayList<TaskList>()
 
+        // Loop through sharedPreferencesContents and recreate the TaskList objects
         for (taskList in sharedPreferencesContents) {
             val itemsHashSet = ArrayList(taskList.value as HashSet<String>)
             val list = TaskList(taskList.key, itemsHashSet)
             taskLists.add(list)
         }
+        // Return the TaskLists
         return taskLists
     }
 
+    // Save a TaskList to SharedPreferences
     fun saveList(list : TaskList) {
+        // Convert to a HashSet to ensure unique values in the list
         sharedPreferences.edit().putStringSet(list.name, list.tasks.toHashSet()).apply()
         lists.add(list)
+
+        // Alert fragment that the list was updated
         onListAdded.invoke()
     }
 
@@ -46,7 +54,7 @@ class MainViewModel(private val sharedPreferences: SharedPreferences) : ViewMode
         lists.add(list)
     }
 
-    // Clear li
+    // Clear a list and refill it from SharedPreferences
     fun refreshLists() {
         lists.clear()
         lists.addAll(retrieveLists())

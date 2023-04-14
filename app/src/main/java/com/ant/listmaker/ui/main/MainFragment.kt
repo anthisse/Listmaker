@@ -13,7 +13,7 @@ import com.ant.listmaker.databinding.FragmentMainBinding
 import kotlin.properties.Delegates
 import org.intellij.lang.annotations.JdkConstants.ListSelectionMode
 
-class MainFragment() : Fragment(),
+class MainFragment : Fragment(),
     ListSelectionRecyclerViewAdapter.ListSelectionRecyclerViewClickListener {
 
     lateinit var clickListener: MainFragmentInteractionListener
@@ -22,10 +22,6 @@ class MainFragment() : Fragment(),
     }
 
     private lateinit var binding: FragmentMainBinding
-
-    companion object {
-        fun newInstance() = MainFragment()
-    }
 
     private lateinit var viewModel : MainViewModel
 
@@ -39,13 +35,14 @@ class MainFragment() : Fragment(),
         return binding.root
     }
 
+    // Override onActivityCreated to retrieve a ViewModel
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(requireActivity(),
             MainViewModelFactory(PreferenceManager.getDefaultSharedPreferences(requireActivity())))
             .get(MainViewModel::class.java)
 
-        val recyclerViewAdapter = ListSelectionRecyclerViewAdapter(viewModel.lists, this) // No value passed for parameter 'clickListener'
+        val recyclerViewAdapter = ListSelectionRecyclerViewAdapter(viewModel.lists, this)
 
         binding.listsRecyclerview.adapter = recyclerViewAdapter
 
@@ -54,7 +51,11 @@ class MainFragment() : Fragment(),
         }
     }
 
+    // Inform the Fragment which list item was tapped
     override fun listItemClicked(list: TaskList) {
-        clickListener.listItemTapped(list) // Unresolved reference error
+        clickListener.listItemTapped(list)
+    }
+    companion object {
+        fun newInstance() = MainFragment()
     }
 }

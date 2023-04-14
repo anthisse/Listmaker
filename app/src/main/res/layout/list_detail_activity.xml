@@ -5,7 +5,7 @@
     android:id="@+id/detail_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ListDetailActivity" >
+    tools:context="com.ant.listmaker.ui.detail.ListDetailActivity" >
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_task_button"
